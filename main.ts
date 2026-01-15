@@ -347,8 +347,8 @@ export default class S3UploaderPlugin extends Plugin {
 
 				const currentDate = new Date();
 
-				// Get the directory path of the current note (e.g., "journal/2026/01" from "journal/2026/01/note.md")
-				const noteDirPath = noteFile.path.substring(0, noteFile.path.lastIndexOf('/')) || '';
+				// Get the note path without extension (e.g., "journal/2026/01/daily" from "journal/2026/01/daily.md")
+				const notePathWithoutExt = noteFile.path.replace(/\.[^/.]+$/, '');
 
 				folder = folder
 					.replace("${year}", currentDate.getFullYear().toString())
@@ -365,8 +365,8 @@ export default class S3UploaderPlugin extends Plugin {
 						noteFile.basename.replace(/ /g, "-"),
 					)
 					.replace(
-						"${filepath}",
-						noteDirPath.replace(/ /g, "-"),
+						"${notepath}",
+						notePathWithoutExt.replace(/ /g, "-"),
 					);
 
 				const key = folder ? `${folder}/${newFileName}` : newFileName;
@@ -701,7 +701,7 @@ class S3UploaderSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Bucket folder")
 			.setDesc(
-				"Optional folder in s3 bucket. Support the use of ${year}, ${month}, ${day}, ${basename} and ${filepath} variables. ${filepath} is the directory path of the current note.",
+				"Optional folder in s3 bucket. Support the use of ${year}, ${month}, ${day}, ${basename} and ${notepath} variables. ${notepath} is the note path without extension (e.g., journal/2026/01/daily).",
 			)
 			.addText((text) =>
 				text
