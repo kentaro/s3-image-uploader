@@ -347,6 +347,9 @@ export default class S3UploaderPlugin extends Plugin {
 
 				const currentDate = new Date();
 
+				// Get the directory path of the current note (e.g., "journal/2026/01" from "journal/2026/01/note.md")
+				const noteDirPath = noteFile.path.substring(0, noteFile.path.lastIndexOf('/')) || '';
+
 				folder = folder
 					.replace("${year}", currentDate.getFullYear().toString())
 					.replace(
@@ -360,6 +363,10 @@ export default class S3UploaderPlugin extends Plugin {
 					.replace(
 						"${basename}",
 						noteFile.basename.replace(/ /g, "-"),
+					)
+					.replace(
+						"${filepath}",
+						noteDirPath.replace(/ /g, "-"),
 					);
 
 				const key = folder ? `${folder}/${newFileName}` : newFileName;
@@ -694,7 +701,7 @@ class S3UploaderSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Bucket folder")
 			.setDesc(
-				"Optional folder in s3 bucket. Support the use of ${year}, ${month}, ${day} and ${basename} variables.",
+				"Optional folder in s3 bucket. Support the use of ${year}, ${month}, ${day}, ${basename} and ${filepath} variables. ${filepath} is the directory path of the current note.",
 			)
 			.addText((text) =>
 				text
@@ -1050,7 +1057,7 @@ const wrapFileDependingOnType = (
 	const srcPrefix = localBase ? "file://" + localBase + "/" : "";
 
 	if (type === "image") {
-		return `![image](${location})`;
+		return `[![image](${location})](${location})`;
 	} else if (type === "video") {
 		return `<video src="${srcPrefix}${location}" controls />`;
 	} else if (type === "audio") {
